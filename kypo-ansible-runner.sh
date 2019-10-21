@@ -57,4 +57,4 @@ if [ -f $REQUIREMENTS_FILE ]; then
 fi
 
 PLAYBOOK_FILE="playbook.yml"
-ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}"
+ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
