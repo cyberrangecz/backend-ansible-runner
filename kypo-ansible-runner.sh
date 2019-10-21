@@ -32,6 +32,7 @@ fi
 shift $((OPTIND - 1))
 
 chmod 600 /root/.ssh -R
+chown root:root /root/.ssh -R
 
 # Check if inventory file exists.
 INVENTORY_FILE=$(realpath $INVENTORY)
