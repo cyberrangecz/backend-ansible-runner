@@ -32,6 +32,7 @@ fi
 shift $((OPTIND - 1))
 
 chmod 600 /root/.ssh -R
+chown root:root /root/.ssh -R
 
 # Check if inventory file exists.
 INVENTORY_FILE=$(realpath $INVENTORY)
@@ -52,8 +53,8 @@ cd ansible_repo/provisioning || exit 1
 
 REQUIREMENTS_FILE="requirements.yml"
 if [ -f $REQUIREMENTS_FILE ]; then
-  ansible-galaxy install -r $REQUIREMENTS_FILE
+  ansible-galaxy install -r $REQUIREMENTS_FILE -p roles
 fi
 
 PLAYBOOK_FILE="playbook.yml"
-ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}"
+ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
