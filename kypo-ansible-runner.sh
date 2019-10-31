@@ -50,11 +50,10 @@ if [ $? != 0 ]; then
 fi
 
 git clone $REPO_URL ansible_repo
-cd ansible_repo/provisioning || exit 1
-
 if [ $REVISION ]; then
   git checkout $REVISION || exit 1
 fi
+cd ansible_repo/provisioning || exit 1
 
 REQUIREMENTS_FILE="requirements.yml"
 if [ -f $REQUIREMENTS_FILE ]; then
