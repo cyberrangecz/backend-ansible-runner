@@ -2,9 +2,10 @@
 
 usage() { echo "kypo-ansible-runner.sh -r [git repo url] -i [inventory file path]"; }
 
-while getopts ":r:i:h" opt; do
+while getopts ":u:r:i:h" opt; do
   case ${opt} in
-  r) REPO_URL=$OPTARG ;;
+  u) REPO_URL=$OPTARG ;;
+  r) REVISION=$OPTARG ;;
   i) INVENTORY=$OPTARG ;; # realpath -e on some systems
   h)
     usage
@@ -49,6 +50,9 @@ if [ $? != 0 ]; then
 fi
 
 git clone $REPO_URL ansible_repo
+if [ $REVISION ]; then
+  git checkout $REVISION || exit 1
+fi
 cd ansible_repo/provisioning || exit 1
 
 REQUIREMENTS_FILE="requirements.yml"
