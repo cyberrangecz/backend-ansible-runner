@@ -2,7 +2,7 @@ FROM alpine:3.10
 
 ENV ANSIBLE_STDOUT_CALLBACK=default
 ENV ANSIBLE_RETRY_FILES_ENABLED=0
-ENV ANSIBLE_SSH_RETRIES=60
+ENV ANSIBLE_SSH_RETRIES=20
 
 RUN apk --update add --no-cache ansible bash git openssh
 
