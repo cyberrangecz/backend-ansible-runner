@@ -5,6 +5,7 @@ ENV ANSIBLE_RETRY_FILES_ENABLED=0
 ENV ANSIBLE_SSH_RETRIES=20
 
 RUN apk --update add --no-cache ansible bash git openssh
+RUN pip3 install netaddr
 
 COPY ./kypo-ansible-runner.sh /app/
 
