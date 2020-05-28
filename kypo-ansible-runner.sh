@@ -49,7 +49,7 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-git clone $REPO_URL ansible_repo
+git clone --recurse-submodules $REPO_URL ansible_repo
 cd ansible_repo
 if [ $REVISION ]; then
   git checkout $REVISION || exit 1
