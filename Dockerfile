@@ -3,6 +3,7 @@ FROM debian:buster-slim
 ENV ANSIBLE_STDOUT_CALLBACK=default
 ENV ANSIBLE_RETRY_FILES_ENABLED=0
 ENV ANSIBLE_SSH_RETRIES=20
+ENV ANSIBLE_SSH_ARGS="-o ServerAliveInterval=30 -o ControlMaster=auto -o ControlPersist=60s"
 
 RUN apt update && apt install -y gnupg2 && \
     echo "deb http://ppa.launchpad.net/ansible/ansible-2.8/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list && \
