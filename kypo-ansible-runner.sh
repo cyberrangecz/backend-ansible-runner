@@ -61,5 +61,10 @@ if [ -f $REQUIREMENTS_FILE ]; then
   ansible-galaxy install -r $REQUIREMENTS_FILE -p roles
 fi
 
+PRE_PLAYBOOK_FILE="pre-playbook.yml"
+if [ -f $PRE_PLAYBOOK_FILE ]; then
+  ansible-playbook $PRE_PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
+fi
+
 PLAYBOOK_FILE="playbook.yml"
 ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
