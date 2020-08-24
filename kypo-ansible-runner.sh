@@ -49,11 +49,12 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-git clone --recurse-submodules $REPO_URL ansible_repo
+git clone $REPO_URL ansible_repo
 cd ansible_repo
 if [ $REVISION ]; then
   git checkout $REVISION || exit 1
 fi
+git submodule update --init --recursive
 cd provisioning || exit 1
 
 REQUIREMENTS_FILE="requirements.yml"
