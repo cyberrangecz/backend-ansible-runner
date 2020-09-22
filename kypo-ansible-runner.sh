@@ -49,22 +49,27 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-git clone $REPO_URL ansible_repo
-cd ansible_repo
+git clone $REPO_URL ansible_repo || exit 1
+cd ansible_repo || exit 1
 if [ $REVISION ]; then
   git checkout $REVISION || exit 1
 fi
-git submodule update --init --recursive
+git submodule update --init --recursive || exit 1
 cd provisioning || exit 1
 
 REQUIREMENTS_FILE="requirements.yml"
 if [ -f $REQUIREMENTS_FILE ]; then
-  ansible-galaxy install -r $REQUIREMENTS_FILE -p roles
+  ansible-galaxy install -r $REQUIREMENTS_FILE -p roles || exit 1
 fi
 
 PRE_PLAYBOOK_FILE="pre-playbook.yml"
 if [ -f $PRE_PLAYBOOK_FILE ]; then
   ansible-playbook $PRE_PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
+  ANSIBLE_ERROR=$?
+  if [ "$ANSIBLE_ERROR" != 0 ]
+  then
+    exit $ANSIBLE_ERROR
+  fi
 fi
 
 PLAYBOOK_FILE="playbook.yml"
