@@ -62,6 +62,8 @@ if [ -f $REQUIREMENTS_FILE ]; then
   ansible-galaxy install -r $REQUIREMENTS_FILE -p roles || exit 1
 fi
 
+autossh -M 12234 -f -N -D 12345 man
+
 PRE_PLAYBOOK_FILE="pre-playbook.yml"
 if [ -f $PRE_PLAYBOOK_FILE ]; then
   ansible-playbook $PRE_PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
