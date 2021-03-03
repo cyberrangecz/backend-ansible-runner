@@ -66,7 +66,7 @@ autossh -M 12234 -f -N -D 12345 man
 
 PRE_PLAYBOOK_FILE="pre-playbook.yml"
 if [ -f $PRE_PLAYBOOK_FILE ]; then
-  ansible-playbook $PRE_PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
+  ansible-playbook $PRE_PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv || exit "$?"
   ANSIBLE_ERROR=$?
   if [ "$ANSIBLE_ERROR" != 0 ]
   then
@@ -75,4 +75,4 @@ if [ -f $PRE_PLAYBOOK_FILE ]; then
 fi
 
 PLAYBOOK_FILE="playbook.yml"
-ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv
+ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv || exit "$?"
