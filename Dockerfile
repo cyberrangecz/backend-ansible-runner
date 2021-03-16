@@ -13,10 +13,10 @@ RUN rm -rf /var/cache/apt/
 
 RUN mkdir -p /root/.ssh
 
-COPY ./kypo-ansible-runner.sh /app/
+COPY ./entrypoint.sh /app/
 
 WORKDIR /app
 
 # /app/inventory.ini
-ENTRYPOINT ["./kypo-ansible-runner.sh", "-i", "inventory.ini"]
+ENTRYPOINT ["./entrypoint.sh", "-i", "inventory.ini"]
 # docker inspect c2c769c4b9ef --format='{{.State.ExitCode}}'
