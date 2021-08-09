@@ -54,6 +54,16 @@ cd ansible_repo || exit 1
 if [ $REVISION ]; then
   git checkout $REVISION || exit 1
 fi
+
+ANSWERS_FILE=$(realpath 'answers.json')
+echo {} > "$ANSWERS_FILE"
+
+VARIABLES_FILE='variables.yml'
+PREPARE_ANSWERS_PY='../prepare_answers.py'
+if [ -f $VARIABLES_FILE ]; then
+  python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE"
+fi
+
 git submodule update --init --recursive || exit 1
 cd provisioning || exit 1
 
@@ -75,4 +85,4 @@ if [ -f $PRE_PLAYBOOK_FILE ]; then
 fi
 
 PLAYBOOK_FILE="playbook.yml"
-ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -vv || exit "$?"
+ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -e "@$ANSWERS_FILE" -vv || exit "$?"
