@@ -5,7 +5,7 @@ import argparse
 
 from generator.var_generator import generate
 from generator.var_parser import parser_var_file
-from requests.exceptions import ConnectionError
+from requests.exceptions import ConnectionError, HTTPError
 
 VARIABLE_FILE_PATH = 'variables.yml'
 KYPO_ANSWERS_STORAGE_API_URL = 'http://answers-storage:8087/kypo-rest-answers-storage/api/v1'
@@ -28,7 +28,7 @@ def create_answers_file(generated_answers, answers_path):
 def generate_answers(inventory_variables):
     pool_id = inventory_variables['kypo_global_pool_id']
     sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
-    seed = (pool_id + sandbox_id) * 43
+    seed = (pool_id + sandbox_id) * 31
 
     with open(VARIABLE_FILE_PATH, 'r') as file:
         variable_list = parser_var_file(file)
@@ -46,7 +46,7 @@ def get_post_data_json(inventory_variables, generated_answers):
     for key, item in generated_answers.items():
         post_data['sandbox_answers'].append({
             'answer_content': item,
-            'answer_identifier': key
+            'answer_variable_name': key
         })
 
     return json.dumps(post_data, indent=4)
@@ -54,11 +54,9 @@ def get_post_data_json(inventory_variables, generated_answers):
 
 def send_post_request(inventory_variables, generated_answers):
     post_data_json = get_post_data_json(inventory_variables, generated_answers)
-    try:
-        requests.post(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes', data=post_data_json,
-                      headers=HEADERS)
-    except ConnectionError:
-        print('\n[Warning]: Service answers-storage is unavailable.\n')
+    post_response = requests.post(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes', data=post_data_json,
+                                  headers=HEADERS)
+    post_response.raise_for_status()
 
 
 def main():
@@ -71,7 +69,15 @@ def main():
 
     generated_answers = generate_answers(inventory_variables)
     create_answers_file(generated_answers, args.answers_path)
-    send_post_request(inventory_variables, generated_answers)
+    try:
+        send_post_request(inventory_variables, generated_answers)
+        print('\n[OK]: Answers are generated successfully and uploaded to answers-storage'
+              ' container.\n')
+    except ConnectionError:
+        print('\n[Warning]: Service answers-storage is unavailable.\n')
+    except HTTPError as exc:
+        print(f'\n[Warning]: Unable to send generated answers to kypo-answers-storage service,'
+              f' status code {exc.response}.\n')
 
 
 if __name__ == '__main__':
