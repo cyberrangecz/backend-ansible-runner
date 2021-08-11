@@ -36,8 +36,7 @@ def generate_answers(inventory_variables):
     return generate(variable_list, seed)
 
 
-def get_post_data_json(inventory_variables, generated_answers):
-    sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
+def get_post_data_json(sandbox_id, generated_answers):
     post_data = {
         'sandbox_ref_id': sandbox_id,
         'sandbox_answers': []
@@ -52,11 +51,28 @@ def get_post_data_json(inventory_variables, generated_answers):
     return json.dumps(post_data, indent=4)
 
 
-def send_post_request(inventory_variables, generated_answers):
-    post_data_json = get_post_data_json(inventory_variables, generated_answers)
-    post_response = requests.post(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes', data=post_data_json,
-                                  headers=HEADERS)
+def get_answers(sandbox_id):
+    return requests.get(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes/' + str(sandbox_id) + '/answers')
+
+
+def delete_answers(sandbox_id):
+    return requests.delete(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes/' + str(sandbox_id))
+
+
+def post_answers(sandbox_id, generated_answers):
+    post_data_json = get_post_data_json(sandbox_id, generated_answers)
+    post_response = requests.post(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes',
+                                  data=post_data_json, headers=HEADERS)
     post_response.raise_for_status()
+
+
+def manage_answers(inventory_variables, generated_answers):
+    sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
+    if get_answers(sandbox_id).status_code == 404:
+        post_answers(sandbox_id, generated_answers)
+    else:
+        delete_response = delete_answers(sandbox_id)
+        delete_response.raise_for_status()
 
 
 def main():
@@ -70,7 +86,7 @@ def main():
     generated_answers = generate_answers(inventory_variables)
     create_answers_file(generated_answers, args.answers_path)
     try:
-        send_post_request(inventory_variables, generated_answers)
+        manage_answers(inventory_variables, generated_answers)
         print('\n[OK]: Answers are generated successfully and uploaded to answers-storage'
               ' container.\n')
     except ConnectionError:

@@ -15,7 +15,7 @@ RUN rm -rf /var/cache/apt/
 RUN mkdir -p /root/.ssh
 
 COPY ./entrypoint.sh /app/
-COPY prepare_answers.py /app/
+COPY manage_answers.py /app/
 
 WORKDIR /app
 
