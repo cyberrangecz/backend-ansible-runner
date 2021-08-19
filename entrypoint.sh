@@ -2,11 +2,12 @@
 
 usage() { echo "kypo-ansible-runner.sh -r [git repo url] -i [inventory file path]"; }
 
-while getopts ":u:r:i:h" opt; do
+while getopts ":u:r:i:a:h" opt; do
   case ${opt} in
   u) REPO_URL=$OPTARG ;;
   r) REVISION=$OPTARG ;;
   i) INVENTORY=$OPTARG ;; # realpath -e on some systems
+  a) ANSWERS_STORAGE_API=$OPTARG ;;
   h)
     usage
     exit
@@ -61,7 +62,7 @@ echo {} > "$ANSWERS_FILE"
 VARIABLES_FILE='variables.yml'
 PREPARE_ANSWERS_PY='../manage_answers.py'
 if [ -f $VARIABLES_FILE ]; then
-  python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE"
+  python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API"
 fi
 
 git submodule update --init --recursive || exit 1
