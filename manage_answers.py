@@ -8,7 +8,6 @@ from generator.var_parser import parser_var_file
 from requests.exceptions import ConnectionError, HTTPError
 
 VARIABLE_FILE_PATH = 'variables.yml'
-KYPO_ANSWERS_STORAGE_API_URL = 'http://answers-storage:8087/kypo-rest-answers-storage/api/v1'
 HEADERS = {
     'accept': 'application/json',
     'Content-Type': 'application/json'
@@ -20,8 +19,8 @@ def load_inventory_variables(inventory_path):
         return yaml.full_load(file)['all']['vars']
 
 
-def create_answers_file(generated_answers, answers_path):
-    with open(answers_path, 'w') as file:
+def create_answers_file(generated_answers, answers_file_path):
+    with open(answers_file_path, 'w') as file:
         json.dump(generated_answers, file)
 
 
@@ -51,44 +50,47 @@ def get_post_data_json(sandbox_id, generated_answers):
     return json.dumps(post_data, indent=4)
 
 
-def get_answers(sandbox_id):
-    return requests.get(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes/' + str(sandbox_id) + '/answers')
+def get_answers(answers_storage_api, sandbox_id):
+    return requests.get(answers_storage_api + '/sandboxes/' + str(sandbox_id) + '/answers')
 
 
-def delete_answers(sandbox_id):
-    return requests.delete(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes/' + str(sandbox_id))
+def delete_answers(answers_storage_api, sandbox_id):
+    requests.delete(answers_storage_api + '/sandboxes/' + str(sandbox_id)).raise_for_status()
 
 
-def post_answers(sandbox_id, generated_answers):
+def post_answers(answers_storage_api, sandbox_id, generated_answers):
     post_data_json = get_post_data_json(sandbox_id, generated_answers)
-    post_response = requests.post(KYPO_ANSWERS_STORAGE_API_URL + '/sandboxes',
+    post_response = requests.post(answers_storage_api + '/sandboxes',
                                   data=post_data_json, headers=HEADERS)
     post_response.raise_for_status()
 
 
-def manage_answers(inventory_variables, generated_answers):
+def manage_answers(inventory_variables, generated_answers, answers_storage_api):
     sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
-    if get_answers(sandbox_id).status_code == 404:
-        post_answers(sandbox_id, generated_answers)
+    if get_answers(answers_storage_api, sandbox_id).status_code == 404:
+        post_answers(answers_storage_api, sandbox_id, generated_answers)
+        return 'post'
     else:
-        delete_response = delete_answers(sandbox_id)
-        delete_response.raise_for_status()
+        delete_answers(answers_storage_api, sandbox_id)
+        return 'delete'
 
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('inventory_path')
-    parser.add_argument('answers_path')
+    parser.add_argument('answers_file_path')
+    parser.add_argument('answers_storage_api')
 
     args = parser.parse_args()
     inventory_variables = load_inventory_variables(args.inventory_path)
+    answers_file_path = args.answers_file_path
+    answers_storage_api = args.answers_storage_api
 
     generated_answers = generate_answers(inventory_variables)
-    create_answers_file(generated_answers, args.answers_path)
+    create_answers_file(generated_answers, answers_file_path)
     try:
-        manage_answers(inventory_variables, generated_answers)
-        print('\n[OK]: Answers are generated successfully and uploaded to answers-storage'
-              ' container.\n')
+        operation = manage_answers(inventory_variables, generated_answers, answers_storage_api)
+        print(f'\n[OK]: Operation [{operation}] upon answers-storage container was successful.\n')
     except ConnectionError:
         print('\n[Warning]: Service answers-storage is unavailable.\n')
     except HTTPError as exc:
