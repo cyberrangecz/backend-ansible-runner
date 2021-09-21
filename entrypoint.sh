@@ -2,12 +2,15 @@
 
 usage() { echo "kypo-ansible-runner.sh -r [git repo url] -i [inventory file path]"; }
 
-while getopts ":u:r:i:a:h" opt; do
+USER_CLEANUP=false
+
+while getopts ":u:r:i:a:hc" opt; do
   case ${opt} in
   u) REPO_URL=$OPTARG ;;
   r) REVISION=$OPTARG ;;
   i) INVENTORY=$OPTARG ;; # realpath -e on some systems
   a) ANSWERS_STORAGE_API=$OPTARG ;;
+  c) USER_CLEANUP=true ;;
   h)
     usage
     exit
@@ -86,4 +89,6 @@ if [ -f $PRE_PLAYBOOK_FILE ]; then
 fi
 
 PLAYBOOK_FILE="playbook.yml"
-ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -e "@$ANSWERS_FILE" -vv || exit "$?"
+if ! $USER_CLEANUP; then
+  ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -e "@$ANSWERS_FILE" -vv || exit "$?"
+fi
