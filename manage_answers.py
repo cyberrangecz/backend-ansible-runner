@@ -50,10 +50,6 @@ def get_post_data_json(sandbox_id, generated_answers):
     return json.dumps(post_data, indent=4)
 
 
-def get_answers(answers_storage_api, sandbox_id):
-    return requests.get(answers_storage_api + '/sandboxes/' + str(sandbox_id) + '/answers')
-
-
 def delete_answers(answers_storage_api, sandbox_id):
     requests.delete(answers_storage_api + '/sandboxes/' + str(sandbox_id)).raise_for_status()
 
@@ -65,37 +61,37 @@ def post_answers(answers_storage_api, sandbox_id, generated_answers):
     post_response.raise_for_status()
 
 
-def manage_answers(inventory_variables, generated_answers, answers_storage_api):
-    sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
-    if get_answers(answers_storage_api, sandbox_id).status_code == 404:
-        post_answers(answers_storage_api, sandbox_id, generated_answers)
-        return 'post'
-    else:
-        delete_answers(answers_storage_api, sandbox_id)
-        return 'delete'
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('inventory_path')
     parser.add_argument('answers_file_path')
     parser.add_argument('answers_storage_api')
+    parser.add_argument('--cleanup', action='store_true')
 
     args = parser.parse_args()
     inventory_variables = load_inventory_variables(args.inventory_path)
+    sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
     answers_file_path = args.answers_file_path
     answers_storage_api = args.answers_storage_api
 
-    generated_answers = generate_answers(inventory_variables)
-    create_answers_file(generated_answers, answers_file_path)
+    _success_msg = "\n[OK]: Successful {} upon answers-storage container.\n"
+    _request_error_msg = "\n[WARNING]: Failed {} upon answers-storage container." \
+                         "Status code {}.\n"
+
     try:
-        operation = manage_answers(inventory_variables, generated_answers, answers_storage_api)
-        print(f'\n[OK]: Operation [{operation}] upon answers-storage container was successful.\n')
+        if args.cleanup:
+            delete_answers(answers_storage_api, sandbox_id)
+            print(_success_msg.format('DELETE'))
+            return
+
+        generated_answers = generate_answers(inventory_variables)
+        create_answers_file(generated_answers, answers_file_path)
+        post_answers(answers_storage_api, sandbox_id, generated_answers)
+        print(_success_msg.format('POST'))
     except ConnectionError:
         print('\n[Warning]: Service answers-storage is unavailable.\n')
     except HTTPError as exc:
-        print(f'\n[Warning]: Unable to send generated answers to kypo-answers-storage service,'
-              f' status code {exc.response}.\n')
+        print(_request_error_msg.format('DELETE' if args.cleanup else 'POST', exc.response))
 
 
 if __name__ == '__main__':
