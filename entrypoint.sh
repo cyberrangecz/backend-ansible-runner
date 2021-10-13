@@ -63,9 +63,12 @@ ANSWERS_FILE=$(realpath 'answers.json')
 echo {} > "$ANSWERS_FILE"
 
 VARIABLES_FILE='variables.yml'
-PREPARE_ANSWERS_PY='../manage_answers.py'
+PREPARE_ANSWERS_PY=$(realpath "manage_answers.py")
 if [ -f $VARIABLES_FILE ]; then
   python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API"
+fi
+if $USER_CLEANUP; then
+  python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API" --cleanup
 fi
 
 git submodule update --init --recursive || exit 1
@@ -89,6 +92,4 @@ if [ -f $PRE_PLAYBOOK_FILE ]; then
 fi
 
 PLAYBOOK_FILE="playbook.yml"
-if ! $USER_CLEANUP; then
-  ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -e "@$ANSWERS_FILE" -vv || exit "$?"
-fi
+ansible-playbook $PLAYBOOK_FILE -i "${INVENTORY_FILE}" -e "@$ANSWERS_FILE" -vv || exit "$?"
