@@ -45,6 +45,7 @@ if [ $? != 0 ]; then
   echo "Inventory file does not exist. Exiting."
   exit 1
 fi
+PREPARE_ANSWERS_PY=$(realpath "manage_answers.py")
 
 # Check if git repo is reachable.
 git ls-remote $REPO_URL -q
@@ -63,7 +64,6 @@ ANSWERS_FILE=$(realpath 'answers.json')
 echo {} > "$ANSWERS_FILE"
 
 VARIABLES_FILE='variables.yml'
-PREPARE_ANSWERS_PY=$(realpath "manage_answers.py")
 if [ -f $VARIABLES_FILE ]; then
   python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API"
 fi
