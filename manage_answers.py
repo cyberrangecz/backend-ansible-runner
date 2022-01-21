@@ -51,12 +51,12 @@ def get_post_data_json(sandbox_id, generated_answers):
 
 
 def delete_answers(answers_storage_api, sandbox_id):
-    requests.delete(answers_storage_api + '/sandboxes/' + str(sandbox_id)).raise_for_status()
+    requests.delete(answers_storage_api + 'sandboxes/' + str(sandbox_id)).raise_for_status()
 
 
 def post_answers(answers_storage_api, sandbox_id, generated_answers):
     post_data_json = get_post_data_json(sandbox_id, generated_answers)
-    post_response = requests.post(answers_storage_api + '/sandboxes',
+    post_response = requests.post(answers_storage_api + 'sandboxes',
                                   data=post_data_json, headers=HEADERS)
     post_response.raise_for_status()
 
