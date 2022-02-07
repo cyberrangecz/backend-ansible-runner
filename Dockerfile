@@ -8,7 +8,7 @@ ENV PIP_EXTRA_INDEX_URL="https://gitlab.ics.muni.cz/api/v4/projects/2358/package
 
 RUN apt update && apt install -y gnupg2 git autossh
 
-RUN pip3 install ansible==3.0.0 pypsrp requests[socks] automated-problem-generation-lib
+RUN pip3 install ansible==5.* pypsrp requests[socks] automated-problem-generation-lib
 
 RUN rm -rf /var/cache/apt/
 
