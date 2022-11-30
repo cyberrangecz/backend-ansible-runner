@@ -70,7 +70,7 @@ def main():
 
     args = parser.parse_args()
     inventory_variables = load_inventory_variables(args.inventory_path)
-    sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
+    sandbox_id = inventory_variables['kypo_global_sandbox_id']
     answers_file_path = args.answers_file_path
     answers_storage_api = args.answers_storage_api
 
