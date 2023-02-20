@@ -35,9 +35,10 @@ def generate_answers(inventory_variables):
     return generate(variable_list, seed)
 
 
-def get_post_data_json(sandbox_id, generated_answers):
+def get_post_data_json(sandbox_id, allocation_id, generated_answers):
     post_data = {
         'sandbox_ref_id': sandbox_id,
+        'allocation_unit_id': allocation_id,
         'sandbox_answers': []
     }
 
@@ -50,12 +51,12 @@ def get_post_data_json(sandbox_id, generated_answers):
     return json.dumps(post_data, indent=4)
 
 
-def delete_answers(answers_storage_api, sandbox_id):
-    requests.delete(answers_storage_api + 'sandboxes/' + str(sandbox_id)).raise_for_status()
+def delete_answers(answers_storage_api, allocation_id):
+    requests.delete(answers_storage_api + 'sandboxes/' + str(allocation_id)).raise_for_status()
 
 
-def post_answers(answers_storage_api, sandbox_id, generated_answers):
-    post_data_json = get_post_data_json(sandbox_id, generated_answers)
+def post_answers(answers_storage_api, sandbox_id, allocation_id, generated_answers):
+    post_data_json = get_post_data_json(sandbox_id, allocation_id, generated_answers)
     post_response = requests.post(answers_storage_api + 'sandboxes',
                                   data=post_data_json, headers=HEADERS)
     post_response.raise_for_status()
@@ -71,6 +72,7 @@ def main():
     args = parser.parse_args()
     inventory_variables = load_inventory_variables(args.inventory_path)
     sandbox_id = inventory_variables['kypo_global_sandbox_id']
+    allocation_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
     answers_file_path = args.answers_file_path
     answers_storage_api = args.answers_storage_api
 
@@ -80,13 +82,13 @@ def main():
 
     try:
         if args.cleanup:
-            delete_answers(answers_storage_api, sandbox_id)
+            delete_answers(answers_storage_api, sandbox_id, allocation_id)
             print(_success_msg.format('DELETE'))
             return
 
         generated_answers = generate_answers(inventory_variables)
         create_answers_file(generated_answers, answers_file_path)
-        post_answers(answers_storage_api, sandbox_id, generated_answers)
+        post_answers(answers_storage_api, sandbox_id, allocation_id, generated_answers)
         print(_success_msg.format('POST'))
     except ConnectionError:
         print('\n[Warning]: Service answers-storage is unavailable.\n')
