@@ -2,6 +2,7 @@ import yaml
 import json
 import requests
 import argparse
+import sys
 
 from generator.var_generator import generate
 from generator.var_parser import parser_var_file
@@ -92,8 +93,10 @@ def main():
         print(_success_msg.format('POST'))
     except ConnectionError:
         print('\n[Warning]: Service answers-storage is unavailable.\n')
+        sys.exit(1)
     except HTTPError as exc:
         print(_request_error_msg.format('DELETE' if args.cleanup else 'POST', exc.response))
+        sys.exit(1)
 
 
 if __name__ == '__main__':
