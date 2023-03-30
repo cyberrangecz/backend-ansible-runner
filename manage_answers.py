@@ -83,7 +83,7 @@ def main():
 
     try:
         if args.cleanup:
-            delete_answers(answers_storage_api, sandbox_id, allocation_id)
+            delete_answers(answers_storage_api, allocation_id)
             print(_success_msg.format('DELETE'))
             return
 
