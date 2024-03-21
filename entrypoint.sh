@@ -47,6 +47,8 @@ if [ $? != 0 ]; then
 fi
 PREPARE_ANSWERS_PY=$(realpath "manage_answers.py")
 
+git config --global credential.helper 'store --file=/app/.git-credentials'
+
 # Check if git repo is reachable.
 git ls-remote $REPO_URL -q
 if [ $? != 0 ]; then
@@ -54,7 +56,7 @@ if [ $? != 0 ]; then
   exit 1
 fi
 
-git clone $REPO_URL ansible_repo || exit 1
+git clone $REPO_URL ansible_repo > /dev/null 2>&1 || exit 1
 cd ansible_repo || exit 1
 if [ $REVISION ]; then
   git checkout $REVISION || exit 1
