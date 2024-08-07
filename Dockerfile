@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.12-slim-bookworm
 
 ENV ANSIBLE_STDOUT_CALLBACK=default
 ENV ANSIBLE_RETRY_FILES_ENABLED=0
@@ -8,7 +8,7 @@ ENV PIP_EXTRA_INDEX_URL="https://gitlab.ics.muni.cz/api/v4/projects/2358/package
 
 RUN apt update && apt install -y gnupg2 git autossh
 
-RUN pip3 install ansible==5.* pypsrp requests[socks] automated-problem-generation-lib
+RUN pip3 install ansible==9.* pypsrp requests[socks] automated-problem-generation-lib
 
 RUN rm -rf /var/cache/apt/
 
