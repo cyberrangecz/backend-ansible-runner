@@ -67,10 +67,10 @@ echo {} > "$ANSWERS_FILE"
 
 VARIABLES_FILE='variables.yml'
 if [ -f $VARIABLES_FILE ]; then
-  python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API" || exit 1
+  python3 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API" || exit 1
 fi
 if $USER_CLEANUP; then
-  python3.8 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API" --cleanup
+  python3 "$PREPARE_ANSWERS_PY" "$INVENTORY_FILE" "$ANSWERS_FILE" "$ANSWERS_STORAGE_API" --cleanup
 fi
 
 git submodule update --init --recursive || exit 1
