@@ -4,11 +4,10 @@ ENV ANSIBLE_STDOUT_CALLBACK=default
 ENV ANSIBLE_RETRY_FILES_ENABLED=0
 ENV ANSIBLE_SSH_RETRIES=20
 ENV ANSIBLE_SSH_ARGS="-o ServerAliveInterval=30 -o ControlMaster=auto -o ControlPersist=60s"
-ENV PIP_EXTRA_INDEX_URL="https://gitlab.ics.muni.cz/api/v4/projects/2358/packages/pypi/simple"
 
 RUN apt update && apt install -y gnupg2 git autossh
 
-RUN pip3 install ansible==9.* pypsrp requests[socks] automated-problem-generation-lib
+RUN pip3 install ansible==9.* pypsrp requests[socks] crczp-automated-problem-generation-lib
 
 RUN rm -rf /var/cache/apt/
 

@@ -1,5 +1,5 @@
 ## Planned use
 
-`docker build -t csirtmu/kypo-ansible-runner .` 
+`docker build -t crczp-ansible-runner .`
 
-`docker run -v /tmp/kypo-tmp/sandboxxx-666/ssh_conf:/root/.ssh -v /tmp/kypo-tmp/sandboxxx-666/inventory.ini:/app/inventory.ini:ro csirtmu/kypo-ansible-runner -u https://github.com/KYPO/nejake-repo`
+`docker run -v /tmp/crczp-tmp/sandboxxx-666/ssh_conf:/root/.ssh -v /tmp/crczp-tmp/sandboxxx-666/inventory.ini:/app/inventory.ini:ro crczp-ansible-runner -u https://github.com/nejake-repo`

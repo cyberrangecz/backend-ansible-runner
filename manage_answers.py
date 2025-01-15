@@ -26,8 +26,8 @@ def create_answers_file(generated_answers, answers_file_path):
 
 
 def generate_answers(inventory_variables):
-    pool_id = inventory_variables['kypo_global_pool_id']
-    sandbox_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
+    pool_id = inventory_variables['global_pool_id']
+    sandbox_id = inventory_variables['global_sandbox_allocation_unit_id']
     seed = (pool_id + sandbox_id) * 31
 
     with open(VARIABLE_FILE_PATH, 'r') as file:
@@ -72,8 +72,8 @@ def main():
 
     args = parser.parse_args()
     inventory_variables = load_inventory_variables(args.inventory_path)
-    sandbox_id = inventory_variables['kypo_global_sandbox_id']
-    allocation_id = inventory_variables['kypo_global_sandbox_allocation_unit_id']
+    sandbox_id = inventory_variables['global_sandbox_id']
+    allocation_id = inventory_variables['global_sandbox_allocation_unit_id']
     answers_file_path = args.answers_file_path
     answers_storage_api = args.answers_storage_api
 

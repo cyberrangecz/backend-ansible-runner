@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-usage() { echo "kypo-ansible-runner.sh -r [git repo url] -i [inventory file path]"; }
+usage() { echo "entrypoint.sh -r [git repo url] -i [inventory file path]"; }
 
 USER_CLEANUP=false
 
