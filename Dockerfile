@@ -7,7 +7,9 @@ ENV ANSIBLE_SSH_ARGS="-o ServerAliveInterval=30 -o ControlMaster=auto -o Control
 
 RUN apt update && apt install -y gnupg2 git autossh
 
-RUN pip3 install ansible==9.* pypsrp requests[socks] crczp-automated-problem-generation-lib
+RUN pip3 install ansible==9.* pypsrp requests[socks] crczp-automated-problem-generation-lib netaddr
+
+RUN ansible-galaxy collection install community.docker:3.10.1
 
 RUN rm -rf /var/cache/apt/
 
