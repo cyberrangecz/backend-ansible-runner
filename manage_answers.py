@@ -15,9 +15,17 @@ HEADERS = {
 }
 
 
+class InventoryLoader(yaml.FullLoader):
+    pass
+
+
+InventoryLoader.add_constructor(
+    '!unsafe', lambda loader, node: loader.construct_scalar(node))
+
+
 def load_inventory_variables(inventory_path):
     with open(inventory_path, 'r') as file:
-        return yaml.full_load(file)['all']['vars']
+        return yaml.load(file, Loader=InventoryLoader)['all']['vars']
 
 
 def create_answers_file(generated_answers, answers_file_path):

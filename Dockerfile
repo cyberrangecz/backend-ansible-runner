@@ -5,7 +5,7 @@ ENV ANSIBLE_RETRY_FILES_ENABLED=0
 ENV ANSIBLE_SSH_RETRIES=20
 ENV ANSIBLE_SSH_ARGS="-o ServerAliveInterval=30 -o ControlMaster=auto -o ControlPersist=60s"
 
-RUN apt update && apt install -y gnupg2 git autossh
+RUN apt update && apt install -y gnupg2 git autossh sshpass
 
 RUN pip3 install ansible==9.* pypsrp requests[socks] crczp-automated-problem-generation-lib netaddr
 
