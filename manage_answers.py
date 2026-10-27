@@ -71,6 +71,46 @@ def post_answers(answers_storage_api, sandbox_id, allocation_id, generated_answe
     post_response.raise_for_status()
 
 
+def get_answers(answers_storage_api, sandbox_id):
+    get_response = requests.get(answers_storage_api + 'sandboxes/' + sandbox_id + '/answers',
+                                headers=HEADERS)
+    if get_response.status_code == 404:
+        return None
+    get_response.raise_for_status()
+    return {
+        answer['answer_variable_name']: answer['answer_content']
+        for answer in get_response.json()['sandbox_answers']
+    }
+
+
+def get_or_create_answers(inventory_variables, answers_storage_api, sandbox_id, allocation_id):
+    """
+    Return the answers stored for the sandbox and whether this call stored them.
+
+    A restarted user stage runs again for the same sandbox, whose answers the
+    first run already stored. Trainees are checked against the stored answers,
+    so the playbook gets those rather than freshly generated ones.
+    """
+    stored_answers = get_answers(answers_storage_api, sandbox_id)
+    if stored_answers is not None:
+        return stored_answers, False
+
+    generated_answers = generate_answers(inventory_variables)
+    try:
+        post_answers(answers_storage_api, sandbox_id, allocation_id, generated_answers)
+    except HTTPError as exc:
+        if exc.response is None or exc.response.status_code != 409:
+            raise
+        stored_answers = get_answers(answers_storage_api, sandbox_id)
+        if stored_answers is None:
+            # answers-storage answers 404 for a sandbox stored with no answers.
+            if generated_answers:
+                raise
+            stored_answers = {}
+        return stored_answers, False
+    return generated_answers, True
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('inventory_path')
@@ -95,15 +135,15 @@ def main():
             print(_success_msg.format('DELETE'))
             return
 
-        generated_answers = generate_answers(inventory_variables)
-        create_answers_file(generated_answers, answers_file_path)
-        post_answers(answers_storage_api, sandbox_id, allocation_id, generated_answers)
-        print(_success_msg.format('POST'))
+        answers, created = get_or_create_answers(
+            inventory_variables, answers_storage_api, sandbox_id, allocation_id)
+        create_answers_file(answers, answers_file_path)
+        print(_success_msg.format('POST' if created else 'GET'))
     except ConnectionError:
         print('\n[Warning]: Service answers-storage is unavailable.\n')
         sys.exit(1)
     except HTTPError as exc:
-        print(_request_error_msg.format('DELETE' if args.cleanup else 'POST', exc.response))
+        print(_request_error_msg.format(exc.request.method, exc.response))
         sys.exit(1)
 
 
